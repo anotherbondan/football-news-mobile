@@ -4,9 +4,11 @@
 
 import 'dart:convert';
 
-NewsEntry newsEntryFromJson(String str) => NewsEntry.fromJson(json.decode(str));
+List<NewsEntry> newsEntryFromJson(String str) =>
+    List<NewsEntry>.from(json.decode(str).map((x) => NewsEntry.fromJson(x)));
 
-String newsEntryToJson(NewsEntry data) => json.encode(data.toJson());
+String newsEntryToJson(List<NewsEntry> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
 class NewsEntry {
   String id;
@@ -36,11 +38,11 @@ class NewsEntry {
     title: json["title"],
     content: json["content"],
     category: json["category"],
-    thumbnail: json["thumbnail"],
+    thumbnail: json["thumbnail"] ?? "",
     newsViews: json["news_views"],
     createdAt: DateTime.parse(json["created_at"]),
     isFeatured: json["is_featured"],
-    userId: json["user_id"],
+    userId: json["user_id"] ?? 0,
   );
 
   Map<String, dynamic> toJson() => {

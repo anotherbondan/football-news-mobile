@@ -101,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
                       String password = _passwordController.text;
 
                       // Check credentials
-                      // TODO: Change the URL and don't forget to add trailing slash (/) at the end of URL!
                       // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
                       // If you using chrome,  use URL http://localhost:8000
                       final response = await request.login(

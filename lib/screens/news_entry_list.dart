@@ -15,11 +15,10 @@ class NewsEntryListPage extends StatefulWidget {
 
 class _NewsEntryListPageState extends State<NewsEntryListPage> {
   Future<List<NewsEntry>> fetchNews(CookieRequest request) async {
-    // TODO: Replace the URL with your app's URL and don't forget to add a trailing slash (/)!
     // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
     // If you using chrome,  use URL http://localhost:8000
 
-    final response = await request.get('http://[YOUR_APP_URL]/json/');
+    final response = await request.get('http://localhost:8000/json/');
 
     // Decode response to json format
     var data = response;
@@ -40,14 +39,28 @@ class _NewsEntryListPageState extends State<NewsEntryListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('News Entry List')),
       drawer: const LeftDrawer(),
+      // ... (Widget build) ...
       body: FutureBuilder(
         future: fetchNews(request),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.data == null) {
+        builder: (context, AsyncSnapshot<List<NewsEntry>> snapshot) {
+          // 1. Cek status Loading
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else {
-            if (!snapshot.hasData) {
+          } 
+          
+          // 2. Cek jika ada Error
+          else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error.toString()}'),
+            );
+          } 
+          
+          // 3. Cek jika data ada dan tidak null
+          else if (snapshot.hasData) {
+            // 4. Cek jika datanya kosong (Empty State)
+            if (snapshot.data!.isEmpty) {
               return const Column(
+                mainAxisAlignment: MainAxisAlignment.center, // Opsional: pusatkan
                 children: [
                   Text(
                     'There are no news in football news yet.',
@@ -56,7 +69,10 @@ class _NewsEntryListPageState extends State<NewsEntryListPage> {
                   SizedBox(height: 8),
                 ],
               );
-            } else {
+            } 
+            
+            // 5. Jika ada data dan tidak kosong (Success State)
+            else {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (_, index) => NewsEntryCard(
@@ -74,9 +90,17 @@ class _NewsEntryListPageState extends State<NewsEntryListPage> {
                 ),
               );
             }
+          } 
+          
+          // 6. Fallback jika snapshot.data == null (meskipun koneksi selesai)
+          else {
+            return const Center(
+              child: Text('No data received from server.'),
+            );
           }
         },
       ),
+// ... (sisa Scaffold) ...
     );
   }
 }
